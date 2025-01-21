@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Param } from '@nestjs/common';
 import { Board } from './boards.entity';
 import { BoardStatus } from './boards-status.enum';
 
@@ -10,6 +10,11 @@ export class BoardsService {
     // 게시글 조회 기능
     getAllBoards(): Board[] {
         return this.boards;
+    }
+
+    // 특정 게시글 조회
+    getBoardDetailById(id: number): Board {
+        return this.boards.find((board) => board.id == id)
     }
 
     //게시글 작성 기능
