@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UsePipes, ValidationPipe,  } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Put, Query, UsePipes, ValidationPipe,  } from '@nestjs/common';
 import { BoardsService } from './boards.service';
 import { Board } from './boards.entity';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { BoardStatus } from './boards-status.enum';
 import { UpdateBoardDto,  } from './dto/update-board.dto';
+import { BoardStatusValidationPipe } from './pipes/board-status-validation.pipe';
 
 @Controller('api/boards') // 컨트롤러의 end 포인트 지정.
 export class BoardsController {
@@ -18,7 +19,8 @@ export class BoardsController {
 
     // 특정 게시글 조회 기능
     @Get('/:id')
-    getBoardDetailById(@Param('id') id:number): Board {
+    @UsePipes(ValidationPipe)
+    getBoardDetailById(@Param('id', ParseIntPipe) id:number): Board {
 	    return this.boardsService.getBoardDetailById(id);
     }
 
@@ -37,8 +39,9 @@ export class BoardsController {
 
     // 특정 번호의 게시글 수정
     @Put('/:id')
+    @UsePipes(ValidationPipe)
     updateBoardById(
-        @Param('id') id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Body() updateBoardDto: UpdateBoardDto) {
             return this.boardsService.updateBoardById(id, updateBoardDto)
         }
@@ -46,14 +49,14 @@ export class BoardsController {
     // 특정 게시글 일부 수정 기능 PATCH
     @Patch('/:id')
     updateBoardStatusById(
-        @Param('id') id: number,
-        @Body('status') status: BoardStatus): Board{
+        @Param('id', ParseIntPipe) id: number,
+        @Body('status', BoardStatusValidationPipe) status: BoardStatus): Board{
         return this.boardsService.updateBoardStatusById(id, status);
     }
 
     // 게시글 삭제 기능
     @Delete('/:id')
-    deleteBoardById(@Param('id') id: number): void {
+    deleteBoardById(@Param('id', ParseIntPipe) id: number): void {
         this.boardsService.deleteBoardById(id);
     }
 }
