@@ -1,4 +1,4 @@
-import { Injectable, Param } from '@nestjs/common';
+import { Injectable, NotFoundException, Param } from '@nestjs/common';
 import { Board } from './boards.entity';
 import { BoardStatus } from './boards-status.enum';
 import { CreateBoardDto } from './dto/create-board.dto';
@@ -16,7 +16,11 @@ export class BoardsService {
 
     // 특정 게시글 조회
     getBoardDetailById(id: number): Board {
-        return this.boards.find((board) => board.id == id)
+        const foundBoard = this.boards.find((board) => board.id == id);
+        if(!foundBoard) {
+            throw new NotFoundException(`Board with ID ${id} not found`); // 찾지 못한 경우의 예외 처리.
+        }
+        return foundBoard;
     }
 
     // 키워드(작성자)로 검색한 게시글 조회 기능
