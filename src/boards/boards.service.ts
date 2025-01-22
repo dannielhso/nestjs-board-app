@@ -75,6 +75,7 @@ export class BoardsService {
         if(foundBoard.status == status){
             throw new ConflictException(`You are already in the ${status} status.`);
         }
+        foundBoard.status = status;
         return foundBoard;
     }
     // 게시글이 없는 경우, 입력한 id가 number타입이 아닌 경우, 현재 상태로 변경하고자 하는 경우, 입력한 status가 PUBLIC이나 PRIVATE가 아닌 경우
