@@ -5,6 +5,7 @@ import { CreateBoardDto } from './dto/create-board.dto';
 import { BoardStatus } from './boards-status.enum';
 import { UpdateBoardDto,  } from './dto/update-board.dto';
 import { BoardStatusValidationPipe } from './pipes/board-status-validation.pipe';
+import { BoardResponseDto } from './dto/board-response.dto';
 
 @Controller('api/boards') // 컨트롤러의 end 포인트 지정.
 export class BoardsController {
@@ -13,8 +14,10 @@ export class BoardsController {
 
     // 게시글 조회 기능
     @Get('/')
-    async getAllBoards(): Promise<Board[]> {
-	    return this.boardsService.getAllBoards();
+    async getAllBoards(): Promise<BoardResponseDto[]> {
+	    const boars: Board[] = await this.boardsService.getAllBoards();
+        const BoardsResponseDto = boars.map(board => new BoardResponseDto(board));
+        return BoardsResponseDto;
     }
 
 //     // 특정 게시글 조회 기능
@@ -30,12 +33,11 @@ export class BoardsController {
 // 	    return this.boardsService.getBoardsByKeyword(author);
 //     }
 
-//     // 게시글 작성 기능
-//     @Post('/')
-//     @UsePipes(ValidationPipe)
-//     createBoard(@Body() createBoardDto: CreateBoardDto) {
-//         return this.boardsService.createBoard(createBoardDto);
-//     }
+    // 게시글 작성 기능
+    @Post('/')
+    async createBoard(@Body() createBoardDto: CreateBoardDto): Promise<string> {
+        return this.boardsService.createBoard(createBoardDto);
+    }
 
 //     // 특정 번호의 게시글 수정
 //     @Put('/:id')
