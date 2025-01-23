@@ -39,18 +39,26 @@ export class BoardsService {
     // // 게시글을 찾지 못한 경우
 
     //게시글 작성 기능
-    createBoard(createBoardDto: CreateBoardDto) {
-        const {author, title, contents} = createBoardDto;
+    async createBoard(createBoardDto: CreateBoardDto): Promise<string> {
+        const {author, title, contents} = createBoardDto; // 구조분해
+
+        if(!author || !title || !contents){
+            throw new BadRequestException('Author, title, and contents must be provided');
+        }
+
         const board: Board = {
-            id: this.boards.length + 1, // 임시 Auto Increment 기능
-            author,
+            id: 0, // 임시 초기화 값을 가지지 않고 엔터티로 변환할 수 없다.
+            author, // author: createBoardDto.author
             title,
             contents,
             status: BoardStatus.PUBLIC,
-        }
-        const savedBoard = this.boards.push(board);
-        return savedBoard;
+        };
+
+        const createBoard = await this.boardRepository.saveBoard(board);
+
+        return createBoard;
     }
+
     // createBoardDto 형식에 맞지 않는 경우,
 
     // // 특정 번호의 게시글 수정
