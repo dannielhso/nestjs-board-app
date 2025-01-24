@@ -49,11 +49,16 @@ export class BoardsService {
     // 게시글을 찾지 못한 경우
 
     //게시글 작성 기능
-    async createBoard(createBoardDto: CreateBoardDto): Promise<string> {
-        const {author, title, contents} = createBoardDto; // 구조분해
-        const createBoard = this.boardRepository.create({author, title, contents,});
-        await this.boardRepository.save(createBoard);
-        return '게시글이 생성되었습니다.';
+    async createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
+        const { author, title, contents } = createBoardDto;
+    
+        const board = this.boardRepository.create({
+          author,
+          title,
+          contents,
+          status: BoardStatus.PUBLIC,
+        });
+        return await this.boardRepository.save(board);
     }
 
     // 특정 번호의 게시글 수정
