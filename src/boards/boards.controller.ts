@@ -6,6 +6,7 @@ import { BoardStatus } from './boards-status.enum';
 import { UpdateBoardDto,  } from './dto/update-board.dto';
 import { BoardStatusValidationPipe } from './pipes/board-status-validation.pipe';
 import { BoardResponseDto } from './dto/board-response.dto';
+import { BoardSearchResponseDto } from './dto/board-search-response.dto';
 
 @Controller('api/boards') // 컨트롤러의 end 포인트 지정.
 export class BoardsController {
@@ -20,45 +21,49 @@ export class BoardsController {
         return BoardsResponseDto;
     }
 
-//     // 특정 게시글 조회 기능
-//     @Get('/:id')
-//     @UsePipes(ValidationPipe)
-//     getBoardDetailById(@Param('id', ParseIntPipe) id:number): Board {
-// 	    return this.boardsService.getBoardDetailById(id);
-//     }
-
-//     // 키워드(작성자)로 검색한 게시글 조회 기능
-//     @Get('/search/:keyword')
-//     getBoardsByKeyword(@Query('author') author:string): Board[] {
-// 	    return this.boardsService.getBoardsByKeyword(author);
-//     }
-
-    // 게시글 작성 기능
-    @Post('/')
-    async createBoard(@Body() createBoardDto: CreateBoardDto): Promise<string> {
-        return this.boardsService.createBoard(createBoardDto);
+    // 특정 게시글 조회 기능
+    @Get('/:id')
+    @UsePipes(ValidationPipe)
+    async getBoardDetailById(@Param('id') id:number): Promise<BoardResponseDto> {
+        const board: Board = await this.boardsService.getBoardDetailById(id);
+	    return new BoardResponseDto(board);
     }
 
-//     // 특정 번호의 게시글 수정
-//     @Put('/:id')
-//     @UsePipes(ValidationPipe)
-//     updateBoardById(
-//         @Param('id', ParseIntPipe) id: number,
-//         @Body() updateBoardDto: UpdateBoardDto) {
-//             return this.boardsService.updateBoardById(id, updateBoardDto)
-//         }
+    // 키워드(작성자)로 검색한 게시글 조회 기능
+    @Get('/search/:keyword')
+    async getBoardsByKeyword(@Query('author') author:string): Promise<BoardSearchResponseDto[]> {
+        const boars: Board[] = await this.boardsService.getBoardsByKeyword(author);
+        const BoardsResponseDto = boars.map(board => new BoardSearchResponseDto(board));
+	    return BoardsResponseDto;
+    }
 
-//     // 특정 게시글 일부 수정 기능 PATCH
-//     @Patch('/:id')
-//     updateBoardStatusById(
-//         @Param('id', ParseIntPipe) id: number,
-//         @Body('status', BoardStatusValidationPipe) status: BoardStatus): Board{
-//         return this.boardsService.updateBoardStatusById(id, status);
-//     }
+    //게시글 작성 기능
+    @Post('/')
+    async createBoard(@Body() createBoardDto: CreateBoardDto): Promise<string> {
+        const createBoard = await this.boardsService.createBoard(createBoardDto);
+        return createBoard;
+    }
 
-//     // 게시글 삭제 기능
-//     @Delete('/:id')
-//     deleteBoardById(@Param('id', ParseIntPipe) id: number): void {
-//         this.boardsService.deleteBoardById(id);
-//     }
+    // 특정 번호의 게시글 수정
+    @Put('/:id')
+    async updateBoardById(
+        @Param('id') id: number,
+        @Body() updateBoardDto: UpdateBoardDto): Promise<BoardResponseDto> {
+            const BoardResponseDto = new BoardSearchResponseDto(await this.boardsService.updateBoardById(id, updateBoardDto));
+            return BoardResponseDto;
+        }
+
+    // 특정 게시글 일부 수정 기능 PATCH
+    @Patch('/:id')
+    async updateBoardStatusById(
+        @Param('id', ParseIntPipe) id: number,
+        @Body('status', BoardStatusValidationPipe) status: BoardStatus): Promise<void>{
+        await this.boardsService.updateBoardStatusById(id, status);
+    }
+
+    // 게시글 삭제 기능
+    @Delete('/:id')
+    async deleteBoardById(@Param('id') id: number): Promise<void> {
+        await this.boardsService.deleteBoardById(id);
+    }
 }
