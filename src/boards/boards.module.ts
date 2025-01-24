@@ -9,6 +9,6 @@ import { Board } from './boards.entity';
     TypeOrmModule.forFeature([Board]), // Board 엔터티를 TypeORM 모듈에 등록.
   ],
   controllers: [BoardsController],
-  providers: [BoardsService, ]
+  providers: [BoardsService]
 })
 export class BoardsModule {}
