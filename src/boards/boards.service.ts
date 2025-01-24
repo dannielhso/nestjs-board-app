@@ -49,7 +49,7 @@ export class BoardsService {
     // 게시글을 찾지 못한 경우
 
     //게시글 작성 기능
-    async createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
+    async createBoard(createBoardDto: CreateBoardDto): Promise<CreateBoardDto> {
         const { author, title, contents } = createBoardDto;
     
         const board = this.boardRepository.create({
