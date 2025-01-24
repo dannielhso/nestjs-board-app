@@ -54,9 +54,9 @@ export class BoardsService {
             status: BoardStatus.PUBLIC,
         };
 
-        const createBoard = await this.boardRepository.saveBoard(board);
+        const message = await this.boardRepository.saveBoard(board);
 
-        return createBoard;
+        return message;
     }
 
     // createBoardDto 형식에 맞지 않는 경우,
