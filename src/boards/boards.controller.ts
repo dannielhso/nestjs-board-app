@@ -39,7 +39,7 @@ export class BoardsController {
 
     //게시글 작성 기능
     @Post('/')
-    async createBoard(@Body() createBoardDto: CreateBoardDto): Promise<string> {
+    async createBoard(@Body() createBoardDto: CreateBoardDto): Promise<Board> {
         const createBoard = await this.boardsService.createBoard(createBoardDto);
         return createBoard;
     }
