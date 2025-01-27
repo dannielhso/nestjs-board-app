@@ -3,11 +3,23 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { User } from './users.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassportModule } from '@nestjs/passport';
+import * as dotenv from 'dotenv';
+import { JwtModule } from '@nestjs/jwt';
+
+dotenv.config();
 
 @Module({
   imports: [
-      TypeOrmModule.forFeature([User]), // Board 엔터티를 TypeORM 모듈에 등록.
-    ],
+	  PassportModule.register({ defaultStrategy: 'jwt' }),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions:{
+        expiresIn: process.env.JWT_EXPIRATION,
+      }
+    }),
+    TypeOrmModule.forFeature([User])
+  ],
   controllers: [AuthController],
   providers: [AuthService]
 })
