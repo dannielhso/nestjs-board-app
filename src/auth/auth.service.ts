@@ -5,13 +5,15 @@ import { Repository } from 'typeorm';
 import { UserRole } from './users-role.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
-import { loginUserDto } from './dto/login-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(User)
-        private userRepository: Repository<User>
+        private userRepository: Repository<User>,
+        private jwtService: JwtService
     ){}
 
     // 회원 가입 기능
@@ -38,17 +40,37 @@ export class AuthService {
     }
 
     // 로그인 기능
-    async signIn(loginUserDto: loginUserDto): Promise<string> {
+    async signIn(loginUserDto: LoginUserDto): Promise<string> {
         const { email, password } = loginUserDto;
 
-        const existingUser = await this.findUserByEmail(email);
+        try {
+            const existingUser = await this.findUserByEmail(email);
 
         if(!existingUser || !(await bcrypt.compare(password, existingUser.password))){
             throw new UnauthorizedException('Invalid credentials');
         }
-        const message = 'Login success';
-        return message;
+
+        // [1] JWT 토큰 생성
+        const payload = {
+            id: existingUser.id,
+            password: existingUser.password,
+            email: existingUser.email,
+            username: existingUser.username,
+            role: existingUser.role,
+        };
+        const accessToken = await this.jwtService.sign(payload);
+
+        return accessToken;
+        } catch (error) {
+            throw error;
+        } 
     }
+
+
+
+
+
+
 
     async findUserByEmail(email: string): Promise<User> {
         const existingUser = await this.userRepository.findOne({ where: { email } });
