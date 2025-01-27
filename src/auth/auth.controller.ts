@@ -22,11 +22,11 @@ export class AuthController {
         const accessToken = await this.authService.signIn(loginUserDto);
 
         // [2] JWT를 쿠키에 저장
-        res.cookie('Authorization', accessToken, {
-            httpOnly: true, // 클라이언트 측 스크립트에서 쿠키 접근 금지
-            secure: false, // HTTPS에서만 쿠키 전송, 임시 비활성화
-            maxAge: 3600000, // 1시간
-            sameSite: 'none', // CSRF 공격 방어
+        res.cookie('Authorization', accessToken, { // 'Authorization' 은 쿠키의 이름이다.
+            httpOnly: true,
+            secure: false,
+            maxAge: 3600000,
+            sameSite: 'none',
         });
 
         res.send({ message: 'Logged in successfully' });
