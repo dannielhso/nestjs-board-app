@@ -51,7 +51,9 @@ export class BoardsService {
     //게시글 작성 기능
     async createBoard(createBoardDto: CreateBoardDto): Promise<CreateBoardDto> {
         const { author, title, contents } = createBoardDto;
-    
+        if (!author || !title || !contents) {
+            throw new BadRequestException('Author, title, and contents must be provided');
+        }
         const board = this.boardRepository.create({
           author,
           title,
