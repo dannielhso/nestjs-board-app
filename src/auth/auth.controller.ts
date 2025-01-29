@@ -1,9 +1,10 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('api/auth')
 export class AuthController {
@@ -30,6 +31,13 @@ export class AuthController {
         });
         
         res.send({message: "Login Success"});
+    }
+
+    @Post('/test')
+    @UseGuards(AuthGuard('jwt')) // UseGuards는 해당 인증 가드가 적용되는, AuthGuard는 어떤 전략을 사용할지 결정.
+    testForAuth(@Req() req: Request) {
+        console.log(req.user); // 인증된 사용자의 정보 출력
+        return { message : 'Authenticated User', user: req.user };
     }
 
 }
