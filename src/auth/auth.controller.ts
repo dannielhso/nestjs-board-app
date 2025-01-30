@@ -27,10 +27,10 @@ export class AuthController {
 
         // [2] JWT를 쿠키에 저장
         res.cookie('Authorization', accessToken, {
-            httpOnly: true,
+            httpOnly: false,
             secure: false,
             maxAge: 360000,
-            sameSite: 'none'
+            sameSite: 'lax'
         });
         
         res.send({message: "Login Success"});
