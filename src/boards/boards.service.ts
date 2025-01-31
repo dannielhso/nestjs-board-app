@@ -5,6 +5,7 @@ import { CreateBoardDto } from './dto/create-board.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateBoardDto } from './dto/update-board.dto';
+import { User } from 'src/auth/users.entity';
 
 @Injectable()
 export class BoardsService {
@@ -49,18 +50,20 @@ export class BoardsService {
     // 게시글을 찾지 못한 경우
 
     //게시글 작성 기능
-    async createBoard(createBoardDto: CreateBoardDto): Promise<CreateBoardDto> {
-        const { author, title, contents } = createBoardDto;
-        if (!author || !title || !contents) {
-            throw new BadRequestException('Author, title, and contents must be provided');
+    async createBoard(createBoardDto: CreateBoardDto, logginedUser: User): Promise<Board> {
+        const { title, contents } = createBoardDto;
+        if (!title || !contents) {
+            throw new BadRequestException('Title, and contents must be provided');
         }
-        const board = this.boardRepository.create({
-          author,
-          title,
-          contents,
-          status: BoardStatus.PUBLIC,
+        const newBoard = this.boardRepository.create({
+            author: logginedUser.username,
+            title,
+            contents,
+            status: BoardStatus.PUBLIC,
+            user: logginedUser,
         });
-        return await this.boardRepository.save(board);
+        const createBoard = await this.boardRepository.save(newBoard);
+        return createBoard;
     }
 
     // 특정 번호의 게시글 수정

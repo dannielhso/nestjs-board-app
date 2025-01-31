@@ -11,6 +11,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/custom-role.guard';
 import { Roles } from 'src/auth/dto/roles.decorator';
 import { UserRole } from 'src/auth/users-role.enum';
+import { GetUser } from 'src/auth/get-user.decorator';
+import { User } from 'src/auth/users.entity';
 
 @Controller('api/boards') // 컨트롤러의 end 포인트 지정.
 @UseGuards(AuthGuard(), RolesGuard)
@@ -45,16 +47,16 @@ export class BoardsController {
 
     //게시글 작성 기능
     @Post('/')
-    async createBoard(@Body() createBoardDto: CreateBoardDto): Promise<BoardResponseDto> {
-        const createBoard = await this.boardsService.createBoard(createBoardDto);
-        return createBoard;
+    async createBoard(@Body() createBoardDto: CreateBoardDto, @GetUser() logginedUser: User): Promise<BoardResponseDto> {
+        const boardResponseDto = new BoardResponseDto(await this.boardsService.createBoard(createBoardDto, logginedUser))
+        return boardResponseDto;
     }
 
     // 특정 번호의 게시글 수정
     @Put('/:id')
     async updateBoardById(
         @Param('id') id: number,
-        @Body() updateBoardDto: UpdateBoardDto): Promise<BoardResponseDto> {
+        @Body() updateBoardDto: UpdateBoardDto): Promise<BoardSearchResponseDto> {
             const BoardResponseDto = new BoardSearchResponseDto(await this.boardsService.updateBoardById(id, updateBoardDto));
             return BoardResponseDto;
         }
