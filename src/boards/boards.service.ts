@@ -14,17 +14,25 @@ export class BoardsService {
         @InjectRepository(Board)
         private boardRepository: Repository<Board>
     ){}
-
     
     // 게시글 조회 기능
     async getAllBoards(): Promise<Board[]> {
         const foundBoards = await this.boardRepository.find();
-        if(!foundBoards){
-            throw new NotFoundException ('Board is not found.');
-        }
         return foundBoards;
     }
-    // 게시글이 없는 경우
+
+    // 로그인된 유저가 작성한 게시글 조회 기능
+    async getMyAllBoards(logginedUser): Promise<Board[]> {
+        // 기본 조회에서는 엔터티를 즉시로딩으로 변경해야 User에 접근할 수 있다.
+        //const foundBoards = await this.boardRepository.findBy({ user: logginedUser });
+        
+        // 쿼리 빌더를 통해 lazy loading 설정된 엔터티와 관계를 가진 엔터티(User)에 명시적 접근이 가능하다.
+        const foundBoards = await this.boardRepository.createQueryBuilder('board')
+            .leftJoinAndSelect('board.user', 'user') // 사용자 정보를 조인(레이지 로딩 상태에서 User 추가 쿼리)
+            .where('board.userId = :userId', { userId : logginedUser.id })
+            .getMany();
+        return foundBoards;
+    }
 
     // 특정 게시글 조회
     async getBoardDetailById(insertId: number): Promise<Board> {
@@ -34,7 +42,6 @@ export class BoardsService {
         }
         return foundBoard;
     }
-    // id가 없는 경우, 입력한 id가 number가 아닌 경우
 
     // 키워드(작성자)로 검색한 게시글 조회 기능
     async getBoardsByKeyword(insertAuthor: string): Promise<Board[]> {
@@ -47,7 +54,6 @@ export class BoardsService {
         }
         return foundBoards;
     }
-    // 게시글을 찾지 못한 경우
 
     //게시글 작성 기능
     async createBoard(createBoardDto: CreateBoardDto, logginedUser: User): Promise<Board> {
@@ -78,7 +84,6 @@ export class BoardsService {
         const updatedBoard = await this.boardRepository.save(foundBoard);
         return updatedBoard;
     }
-    // // 게시글이 없는 경우, 입력한 번호가 number타입이 아닌 경우, 제목이나 내용이 string타입이 아닌 경우
 
     // 특정 게시글 일부 수정 기능
     async updateBoardStatusById(id: number, status: BoardStatus): Promise<void> {
@@ -87,12 +92,10 @@ export class BoardsService {
             throw new NotFoundException (`Board whit ID ${id} is not found.`)
         }
     }
-    // 게시글이 없는 경우, 입력한 id가 number타입이 아닌 경우, 현재 상태로 변경하고자 하는 경우, 입력한 status가 PUBLIC이나 PRIVATE가 아닌 경우
 
     // 게시글 삭제 기능
     async deleteBoardById(id: number): Promise<void> {
         const foundBoard = await this.getBoardDetailById(id);
         this.boardRepository.delete(foundBoard);
     }
-    // 게시글이 없는 경우, 입력한 id가 number타입이 아닌 경우, 
 }
