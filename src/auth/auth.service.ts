@@ -1,50 +1,19 @@
-import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './user.entity';
-import { Repository } from 'typeorm';
-import { UserRole } from './user-role.enum';
-import { SignUpRequestDto } from './dto/sign-up-request.dto';
+import { ConflictException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { SignInRequestDto } from './dto/sign-in-request.dto';
+import { User } from 'src/user/user.entity';
 import { JwtService } from '@nestjs/jwt';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
     private readonly logger = new Logger(AuthService.name);
     constructor(
-        @InjectRepository(User)
-        private userRepository: Repository<User>,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private userService: UserService,
     ){}
 
-    // 회원 가입 기능
-    async createUser(signUpRequestDto: SignUpRequestDto): Promise<User> {
-        this.logger.verbose(`Visitor is creating a new account with email: ${signUpRequestDto.email}`);
-
-        const { username, password, email, role } = signUpRequestDto;
-        if (!username || !password || !email || !role) {
-            throw new BadRequestException('Something went wrong.')
-        }
-
-        await this.checkEmailExist(email);
-
-        const hashedPassword = await this.hashPassword(password);
-
-        const newUser = this.userRepository.create({
-            username,
-            password: hashedPassword,
-            email,
-            role: UserRole.USER,
-        });
-
-        const createUser = await this.userRepository.save(newUser)
-
-        this.logger.verbose(`User with email ${signUpRequestDto.email} is signing in`);
-
-        return createUser
-    }
-
-    // 로그인 기능
+    // Sign-In
     async signIn(signInRequestDto : SignInRequestDto): Promise<string> {
         this.logger.verbose(`Visitor is creating a new account with email: ${signInRequestDto.email}`);
 
@@ -75,13 +44,8 @@ export class AuthService {
         }
     }
 
-
-
-
-
-
     async findUserByEmail(email: string): Promise<User> {
-        const existingUser = await this.userRepository.findOne({ where: { email } });
+        const existingUser = await this.userService.findUserByEmail(email);
         if(!existingUser){
             throw new NotFoundException('User not found');
         }
@@ -89,7 +53,7 @@ export class AuthService {
     }
 
     async checkEmailExist(email: string): Promise<void> {
-        const existingUser = await this.userRepository.findOne({ where: { email } });
+        const existingUser = await this.userService.findUserByEmail(email);
         if(existingUser){
             throw new ConflictException('Email already exists.');
         }

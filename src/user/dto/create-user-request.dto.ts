@@ -1,7 +1,7 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsString, Matches, MaxLength, MinLength } from "class-validator";
 import { UserRole } from "../user-role.enum";
 
-export class SignUpRequestDto {
+export class CreateUserRequestDto {
     @IsNotEmpty() // 빈 값이 아닌지 체크
     @IsString() // 문자열인지 체크
     @MinLength(2) // 2글자 이상인지 체크

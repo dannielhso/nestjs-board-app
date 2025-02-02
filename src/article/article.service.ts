@@ -5,7 +5,7 @@ import { CreateArticleRequestDto } from './dto/create-article-request.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateArticleResponseDto } from './dto/update-article-request.dto';
-import { User } from 'src/auth/user.entity';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class ArticleService {
@@ -16,7 +16,7 @@ export class ArticleService {
         private articleRepository: Repository<Article>
     ){}
 
-    //게시글 작성 기능
+    // CREATE
     async createArticle(createArticleRequestDto: CreateArticleRequestDto, logginedUser: User): Promise<Article> {
         this.logger.verbose(`User ${logginedUser.username} is a creating a new article with title: ${createArticleRequestDto.title}`);
 
@@ -40,7 +40,7 @@ export class ArticleService {
         return createArticle;
     }
     
-    // 게시글 조회 기능
+    // READ - all
     async getAllArticleList(): Promise<Article[]> {
         this.logger.verbose(`Retrieving all Articles`);
 
@@ -50,7 +50,7 @@ export class ArticleService {
         return foundArticles;
     }
 
-    // 로그인된 유저의 게시글 조회 기능
+    // READ - by Loggined User
     async getMyAllArticleList(logginedUser): Promise<Article[]> {
         this.logger.verbose(`Retrieving ${logginedUser.username}'s all Articles`);
 
@@ -63,7 +63,7 @@ export class ArticleService {
         return foundArticles;
     }
 
-    // 특정 게시글 조회 기능
+    // READ - by id
     async getArticleDetailById(id: number): Promise<Article> {
         this.logger.verbose(`Retrieving Article by id: ${id}`);
 
@@ -80,7 +80,7 @@ export class ArticleService {
         return foundArticle;
     }
 
-    // 키워드(작성자)로 검색한 게시글 조회 기능
+    // READ - by keyword
     async getArticleListByKeyword(author: string): Promise<Article[]> {
         this.logger.verbose(`Retrieving article by id: ${author}`);
 
@@ -98,7 +98,7 @@ export class ArticleService {
         return foundArticles;
     }
 
-    // 특정 번호의 게시글 수정
+    // UPDATE - by id
     async updateArticleById(id: number, updateArticleResponseDto: UpdateArticleResponseDto): Promise<Article> {
         this.logger.verbose(`Updating a article by id: ${id} with updaiteArticleDto`);
 
@@ -115,7 +115,7 @@ export class ArticleService {
         return updatedArticle;
     }
 
-    // 특정 게시글 일부 수정 기능
+    // UPDATE - status <ADMIN>
     async updateArticleStatusById(id: number, status: ArticleStatus): Promise<void> {
         this.logger.verbose(`Updating a article by id: ${id} with status: ${status}`);
 
@@ -127,12 +127,12 @@ export class ArticleService {
         this.logger.verbose(`Updated a article's by ${id} status to ${status} Successfully`);
     }
 
-    // 게시글 삭제 기능
+    // DELETE
     async deleteArticleById(id: number, logginedUser: User): Promise<void> {
         this.logger.verbose(`User: ${logginedUser.username} is Delete a article by id: ${id}`);
 
         const foundArticle = await this.getArticleDetailById(id);
-        // 작성자와 요청한 사용자가 같은지 확인.
+        
         if (foundArticle.user.id !== logginedUser.id) {
             throw new UnauthorizedException(`You do not have permission to delete this article.`);
         }
