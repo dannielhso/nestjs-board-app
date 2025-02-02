@@ -69,8 +69,9 @@ export class BoardsController {
             return BoardResponseDto;
         }
 
-    // 특정 게시글 일부 수정 기능 PATCH
+    // 특정 번호 게시글 일부 수정 <ADMIN 기능>
     @Patch('/:id')
+    @Roles(UserRole.ADMIN)
     async updateBoardStatusById(
         @Param('id', ParseIntPipe) id: number,
         @Body('status', BoardStatusValidationPipe) status: BoardStatus): Promise<void>{
@@ -79,7 +80,8 @@ export class BoardsController {
 
     // 게시글 삭제 기능
     @Delete('/:id')
-    async deleteBoardById(@Param('id') id: number): Promise<void> {
-        await this.boardsService.deleteBoardById(id);
+    @Roles(UserRole.USER, UserRole.ADMIN)
+    async deleteBoardById(@Param('id') id: number, @GetUser() logginedUser: User): Promise<void> {
+        await this.boardsService.deleteBoardById(id, logginedUser);
     }
 }
