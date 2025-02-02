@@ -1,18 +1,18 @@
 import { Module } from '@nestjs/common';
-import { BoardsModule } from './boards/boards.module';
+import { ArticleModule } from './articles/article.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './configs/typeorm.config';
 import { AuthModule } from './auth/auth.module';
 import { GlobalModule } from './global.module';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import { UnauthorizedExceptionFilter } from './boards/common/filters/unauthorization.filter';
-import { LoggingInterceptor } from './boards/common/interceptors/logging.interceptor';
+import { UnauthorizedExceptionFilter } from './articles/common/filters/unauthorization.filter';
+import { LoggingInterceptor } from './articles/common/interceptors/logging.interceptor';
 
 @Module({
   imports: [
     GlobalModule,
     TypeOrmModule.forRoot(typeOrmConfig),
-    BoardsModule,
+    ArticleModule,
     AuthModule
   ],
   providers: [
