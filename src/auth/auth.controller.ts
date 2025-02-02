@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Logger, Post, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -10,6 +10,7 @@ import { User } from './users.entity';
 
 @Controller('api/auth')
 export class AuthController {
+    private readonly logger = new Logger(AuthController.name);
     constructor(
         private authService: AuthService
     ) {}
@@ -17,27 +18,26 @@ export class AuthController {
     // 회원 가입 기능
     @Post('/signup')
     async createUser(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
+        this.logger.verbose(`Visiter is try to creating a new account with email: ${createUserDto.email}`);
+
         const userResponseDto = new UserResponseDto(await this.authService.createUser(createUserDto))
+
+        this.logger.verbose(`New account email with ${createUserDto.email} created successfully`);
         return userResponseDto
     }
 
     // 로그인 기능
     @Post('/signin')
     async signIn(@Body() loginUserDto: LoginUserDto, @Res() res:Response): Promise<void> {
+        this.logger.verbose(`User with email: ${loginUserDto.email} is try to signing in`);
+
         const accessToken = await this.authService.signIn(loginUserDto);
 
         // [2] JWT를 쿠키에 저장
         res.setHeader('Authorization', accessToken);
         
         res.send({message: "Login Success", accessToken});
+     
+        this.logger.verbose(`User with email: ${loginUserDto.email} issued JWT ${accessToken}`);
     }
-
-    @Post('/test')
-    @UseGuards(AuthGuard('jwt')) // UseGuards는 해당 인증 가드가 적용되는, AuthGuard는 어떤 전략을 사용할지 결정.
-    testForAuth(@GetUser() logginedUser: User) {
-        console.log(logginedUser); // 인증된 사용자의 정보 출력
-        console.log(logginedUser.email); // 인증된 사용자의 특정 필드 접근
-        return { message : 'Authenticated User', user: logginedUser };
-    }
-
 }
