@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { ArticleModule } from './articles/article.module';
+import { ArticleModule } from './article/article.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './configs/typeorm.config';
 import { AuthModule } from './auth/auth.module';
 import { GlobalModule } from './global.module';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import { UnauthorizedExceptionFilter } from './articles/common/filters/unauthorization.filter';
-import { LoggingInterceptor } from './articles/common/interceptors/logging.interceptor';
+import { UnauthorizedExceptionFilter } from './article/common/filters/unauthorization.filter';
+import { LoggingInterceptor } from './article/common/interceptors/logging.interceptor';
 
 @Module({
   imports: [
