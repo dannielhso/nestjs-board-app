@@ -1,12 +1,10 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { ArticleStatus } from "./article-status.enum";
 import { User } from "src/user/user.entity";
+import { CommonEntity } from "src/common/entities/common.entity";
 
 @Entity()
-export class Article {
-    @PrimaryGeneratedColumn() // PK + Auto_increment
-    id: number;
-
+export class Article extends CommonEntity {
     @Column() // General Column
     author: string;
 
